@@ -42,7 +42,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
       width: 300,
       alignment: OverlayAlignment.topCenter,
       enableDrag: true,
-      overlayTitle: "Dictionary",
+      overlayTitle: "DictionaryOverlay",
       overlayContent: "$word: $meaning",
     );
   }
