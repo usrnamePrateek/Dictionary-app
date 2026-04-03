@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'db_helper.dart';
+import 'api_service.dart';
 import 'text_receiver.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
@@ -42,10 +42,19 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
       width: 300,
       alignment: OverlayAlignment.topCenter,
       enableDrag: true,
-      overlayTitle: "Dictionary",
+      overlayTitle: "DictionaryOverlay",
       overlayContent: "$word: $meaning",
     );
   }
+
+  String cleanWord(String word) {
+    String cleanedWord = word.toLowerCase().trim().replaceAll(
+      RegExp(r'[^a-z_]'),
+      '',
+    );
+
+    return cleanedWord;
+  } // remove punctuation
 
   void loadSelectedText() async {
     String? text = await TextReceiver.getSelectedText();
@@ -53,26 +62,24 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
     if (text != null && text.isNotEmpty) {
       controller.text = text;
 
-      String? result = await DBHelper.getMeaning(text);
-
       setState(() {
-        meaning = result ?? "Word not found";
+        meaning = "Loading...";
+      });
+
+      String cleanedWord = cleanWord(text);
+      List<String> meanings = await ApiService.getMeanings(cleanedWord);
+      setState(() {
+        meaning = meanings.isNotEmpty
+            ? meanings
+                  .take(3)
+                  .join("\n\n") // limit to 3 meanings
+            : "Word not found!!";
       });
     }
   }
 
   TextEditingController controller = TextEditingController();
   String meaning = "";
-
-  void searchWord() async {
-    String word = controller.text.toLowerCase();
-
-    String? result = await DBHelper.getMeaning(word);
-
-    setState(() {
-      meaning = result ?? "Word not found";
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
