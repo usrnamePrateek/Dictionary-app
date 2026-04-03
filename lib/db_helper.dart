@@ -21,7 +21,7 @@ class DBHelper {
     return _db!;
   }
 
-  static Future<String?> getMeaning(String word) async {
+  static Future<List<String>> getMeanings(String word) async {
     final db = await getDB();
 
     var result = await db.query(
@@ -30,9 +30,11 @@ class DBHelper {
       whereArgs: [word.toLowerCase()],
     );
 
-    if (result.isNotEmpty) {
-      return result.first["meaning"] as String;
-    }
-    return null;
+    print("result: ${result}");
+
+    return result
+        .map((e) => e["meaning"]?.toString() ?? "")
+        .where((e) => e.isNotEmpty)
+        .toList();
   }
 }
